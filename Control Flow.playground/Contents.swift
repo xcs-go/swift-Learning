@@ -303,8 +303,99 @@ let moveNearerToZero = chooseStepFunction(currentValue > 0)
 // 嵌套函数 : 在一个函数体中定义另一个函数，叫做嵌套函数
 // 默认情况下，嵌套函数是对外界不可见的，但是可以被它们的外围函数调用，一个外围函数也可以返回它的某一个嵌套函数，使得这个函数可以在其他领域中被调用
 
+// 闭包
+// 闭包是自包含的函数代码块，可以在代码中被传递和使用。闭包可以捕获和存储其所在上下文中任意常量和变量的应用。这就是所谓的闭合并包裹着这些常量和变量，俗称闭包
+
+// 闭包的三种形式
+//1:全局函数是一个有名字但不会捕获任何值的闭包
+//2:嵌套函数是一个有名字并可以捕获其封闭函数内值的闭包
+//3:闭包表达式是一个利用轻量级语法所写的可以捕获其上下文中变量或常量的值的匿名闭包
+
+//swift 的闭包表达式拥有简洁的风格，并鼓励在常见场景中进行语法优化
+//1:利用上下文推断参数和返回值类型
+//2:隐士返回单表达式闭包，即单表达式闭包可以省略return关键字
+//3:参数名称缩写
+//4:尾随闭包语法
 
 
+// 闭包表达式
+
+// sort方法:会根据提供的用于排序的闭包函数将已知类型数组中的值进行排序，排序完成后，sort方法会返回一个与原数组大小相同，包含同类型元素且元素已正确排序的新数组。
+let stringNames = ["Chris","Alex","Ewa","Barry","Daniella"]
+//func backWards(s1:String,s2:String) -> Bool{
+//    return s1 > s2
+//}
+//var reversed = stringNames.sorted(backWards)
+//
+//print("\(reversed)")
+
+// 闭包表达式语法形式:
+//    {(parameters) -> returnType in  闭包的函数体部分由关键字in引入，该关键字表示闭包的参数和返回值类型定义已经完成，闭包函数体即将开始
+//        statements
+//}
+
+var reversed = stringNames.sorted({(s1:String,s2:String) -> Bool in
+    return s1 > s2
+})
+
+// 根据上下文推断类型：通过内联闭包表达式构造的闭包作为参数传递给函数或方法时，都可以推断出闭包的参数和返回值类型。这意味着闭包作为函数或者方法的参数时，几乎不需要利用完整格式构造内联闭包.
+
+reversed = stringNames.sorted({s1,s2 in return s1 > s2})
+print("\(reversed)")
+
+
+// 单表达式闭包隐士返回
+// 单行表达式闭包可以通过省略return关键字来隐士返回单行表达式的结果
+reversed = stringNames.sorted({s1,s2 in s1 > s2})
+
+// 参数名称缩写
+// swift自动为内联闭包提供了参数名称缩写功能,可以直接通过$0,$1,$2来顺序调用闭包的参数.如果在闭包表达式中使用参数名称缩写，您可以在闭包参数列表中省略对其的定义，并且对应参数名称缩写的类型会通过函数类型进行推断。in关键字也同样可以被省略
+reversed = stringNames.sorted({$0 > $1})
+
+// 运算符函数
+//swift的string类型定义了有关“>”的字符串实现，其作为一个函数接受两个String类型的参数并返回Bool类型的值。swift可以自动推断您想使用大于号的字符串函数实现
+reversed = stringNames.sorted(>)
+
+// 尾随闭包
+// 如果您需要将一个很长的闭包表达式作为最后一个参数传递给函数，可以使用尾随闭包来增强函数的可读性。尾随闭包是一个书写在函数括号之后的闭包表达式，函数支持将其作为最后一个参数调用:
+func someFunctionThatTakesAClosure(closure:() -> Void) {
+//    函数体部分
+}
+
+// 以下是不使用尾随闭包进行函数调用
+someFunctionThatTakesAClosure({
+//    闭包主体部分
+})
+
+// 一下是使用尾随闭包进行函数调用
+someFunctionThatTakesAClosure(){
+//    闭包主体部分
+}
+
+reversed = stringNames.sorted(){(s1:String,s2:String) -> Bool in s1 > s2}
+print("\(reversed)")
+
+reversed = stringNames.sorted(){s1,s2 in s1 > s2}
+
+reversed = stringNames.sorted(){$0 > $1}
+
+// 如果函数只需要闭包表达式一个参数，当使用尾随闭包时，可以把()省略掉
+reversed = stringNames.sorted{$0 > $1}
+print("\(reversed)")
+
+let  digitNames = [
+    0:"Zero",1:"One",2:"Two",3:"There",4:"Four",5:"Five",6:"Six",7:"Seven",8:"Eight",9:"Nine"
+]
+
+let numbers = [16,58,510]
+let strings = numbers.map{(var number) -> String in
+    var output = ""
+    while number > 0 {
+        output = digitNames[number % 10]! + output
+        number /= 10
+    }
+    return output
+}
 
 
 

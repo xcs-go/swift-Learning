@@ -73,8 +73,80 @@ case 100..<1000:
 default:
     naturalCount = "many"
 }
+print("There are \(naturalCount) \(countedThings).")
 
 
+// 元组 ，我们可以使用元组在同一个switch语句中测试多个值，元组中的元素可以是值，也可以是区间，另外，使用下划线（_）来匹配所有可能的值
+let somePoint = (1,1)
+print("\(somePoint.1)")  // 可以利用点语法从元组中取出某个值
+switch somePoint{
+case(0,0):
+    print("(0,0) is at the origin")
+case(_,0):
+    print("(\(somePoint.0),0) is on the x-axis")
+case(0,_):
+    print("(0,\(somePoint.1)) is on the y-axis")
+case(-2...2,-2...2):
+    print("(\(somePoint.0), \(somePoint.1)) is inside the box")
+default:
+    print("(\(somePoint.0), \(somePoint.1)) is outside of the box")
+}
 
+
+// 带标签的语句
+
+// 使用标签来标记一个循环体或者switch代码块，当使用break或者continue时，带上这个标签，可以控制标签代表对象的中断或者执行
+// 产生一个带标签的语句是通过在该语句的关键词的同一行前面放置一个标签，并且该标签后面还需要带着一个冒号。
+//label name:while condition{
+//}
+
+// 提前退出
+// 像if语句一样，guard的执行取决于一个表达式的布尔值。可以使用guard语句来要求条件必须为真时，以执行guard语句后的代码。不同于if语句，一个guard语句总是有一个else分句，如果条件不为真则执行else分句中的代码
+
+//func greet(person:[String:String]){
+//    guard let name = person["name"] else{
+//        return
+//    }
+//    print("hello \(name)")
+//    
+//    guard let location = person["location"] else {
+//        print("I hope the weather is nice near you.")
+//        return
+//    }
+//    print("I hope the weather is nice in \(location)")
+//}
+
+
+// 函数
+
+// 1:函数的定义与调用
+// 定义函数时，可以定义函数的参数和参数的类型，也可以定义函数的返回值
+// 每个函数有个函数名。用来描述函数执行的任务，使用函数时，使用函数名调用函数吗并且给该函数传递相关的参数
+func sayHello(person:String) -> String {
+    let greeting = "hello, " + person + "!"
+    return greeting
+}
+print(sayHello("lmg"))
+
+// 函数参数与返回值
+//1:无参函数
+func sayHelloWorld() -> String{
+    return"hello world"
+}
+print(sayHelloWorld())
+
+// 2:多参数函数
+// 函数可以带有多种参数，参数类型也可以不相同，这些参数被包含在函数的括号中，相互之间用逗号分隔
+func sayHi(personName:String, alreadyGreeted:Bool) -> String {
+    if alreadyGreeted {
+        return sayHello(personName)
+    } else {
+       return sayHelloWorld()
+    }
+}
+print(sayHi("Tim", true))
+
+
+//3:无返回值函数
 
 

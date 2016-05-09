@@ -383,6 +383,8 @@ reversed = stringNames.sorted(){$0 > $1}
 reversed = stringNames.sorted{$0 > $1}
 print("\(reversed)")
 
+
+// Array类型的map(_:)方法，其获取一个闭包表达式作为其唯一参数，该闭包函数会为数组中的每一个元素调用一次，并且返回该元素所映射的值。具体的映射方式和返回值类型由闭包来指定
 let  digitNames = [
     0:"Zero",1:"One",2:"Two",3:"There",4:"Four",5:"Five",6:"Six",7:"Seven",8:"Eight",9:"Nine"
 ]
@@ -396,6 +398,125 @@ let strings = numbers.map{(var number) -> String in
     }
     return output
 }
+
+// 捕获值
+// 闭包可以在其被定义的上下文中捕获常量或变量。即便定义这些常量和变量的原作用域已经不存在，闭包仍然可以在闭包函数体内引用和修改这些值
+func makeIncrementor(forIncrement amout:Int) -> () -> Int {
+    var runningTotal = 0
+    func incrementor() -> Int {
+        runningTotal += amout
+        return runningTotal
+    }
+    return incrementor   // 函数可以作为一个返回值返回
+}
+
+
+// 为了优化，如果一个值是不可变的，swift可能会改为捕获并保存一份对值的拷贝
+let incrementByTen = makeIncrementor(forIncrement: 10)
+incrementByTen()
+incrementByTen()
+incrementByTen()
+
+
+// 如果创建了另一个incrementor,它会有属于它自己的一个全新、独立的runningTotal变量的引用;再次调用原来的incrementByTen会在原来的变量runningTotal上继续增加值，该变量和increnmentBySeven中捕获的变量没有任何联系
+let incrementBySeven = makeIncrementor(forIncrement: 7)
+incrementBySeven()
+incrementByTen()
+
+// 闭包是引用类型
+// 函数和闭包都是引用类型
+// 无论将函数或闭包赋值给一个变量还是常量，实际上都是将变量或常量的值设置为对应函数或闭包的引用.因此，如果将闭包赋值给了两个不同的常量或变量，两个值都会指向同一个闭包
+let alsoIncrementByTen = incrementByTen
+alsoIncrementByTen()
+
+
+// 非逃逸闭包
+// 当一个闭包作为参数传到一个函数中，但是这个闭包在函数返回之后才被执行，我们称该闭包从函数中逃逸。当定义接受闭包作为函数的参数时，可以在参数名之前标注@noescape,用来指明之歌闭包不允许“逃逸”出这个函数.
+// 闭包职能在函数体中执行，不能脱离函数体执行
+
+func someFunctionWithNoescapeCloure(@noescape cloure:() -> Void) {
+    
+}
+
+var completionHandlers:[() -> Void] = []  // 定义了一个数组变量
+func someFunctionWithEscapingClosure(completionHandler: () -> Void) {
+    completionHandlers.append(completionHandler)
+}
+//print("irhjdf")
+
+class someClass {
+    var x = 10
+    func dosomething() {
+        someFunctionWithEscapingClosure {
+            self.x = 100
+        }
+        someFunctionWithNoescapeCloure({x = 200})
+    }
+}
+let instance = someClass()
+instance.dosomething()
+print(instance.x)
+
+completionHandlers.first?()
+print(instance.x)
+completionHandlers.last?()
+print(instance.x)
+
+
+// 自动闭包
+// 自动闭包是一种自动创建的闭包,用于包装传递给函数作为参数的表达式。这种闭包不接受任何参数，当它被调用的时候，会返回被包装在其中的表达式的值。
+// 自动闭包让你能够延迟求值
+
+var customersInLine = ["Chris","Alex","Ewa","Barry","Daniella"]
+print(customersInLine.count)
+
+let customerProvider = {customersInLine.removeAtIndex(0)}  // {}创建自动闭包
+print(customersInLine.count)
+
+// 当它被调用的时候，会返回被包装在其中的表达式
+print(customerProvider())
+
+// 当它被调用的时候，会返回被包装在其中的表达式
+print("Now servins \(customerProvider())!")
+
+print(customersInLine.count)
+
+// 将闭包作为参数传递给函数时，能获得同样的延时求值行为
+func serveCustomer (customerProvider:() -> String) { // 说明接受的是显式的闭包
+    print("now serviing \(customerProvider())!") // 调用闭包
+}
+serveCustomer(customerProvider) // serveCustomer({customerInLine.removeAtIndex(0)})
+print(customersInLine.count)
+
+
+// @autoclosure ：标记接收一个自动闭包
+func serverCustomer(@autoclosure customerProvider:() -> String) { // 说明接受的是自动闭包
+    print("Now serving \(customerProvider())!")
+    
+}
+serverCustomer(customerProvider())
+
+// @autoclosure 特性暗含了@noescape特性。如果你想让这个闭包可以“逃逸”，则应该使用@autoclosure(escaping)特性
+
+var customereProviders: [() -> String] = []
+func collectCustomerProviders(@autoclosure(escaping) customerProvider: () -> String) {
+    customereProviders.append(customerProvider)
+}
+
+collectCustomerProviders(customerProvider())
+
+print("Collected \(customereProviders.count) closures.")
+
+for custo in customereProviders {
+    print("Now serving \(customerProvider())!")
+}
+print("Collected \(customereProviders.count) closures.")
+
+
+
+
+
+
 
 
 

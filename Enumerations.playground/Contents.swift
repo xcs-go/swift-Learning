@@ -117,6 +117,132 @@ print("\(earString)")
 // 递归枚举是一种枚举类型，它有一个或多个枚举成员使用该枚举类型的实例作为关联值。使用递归枚举时，编译器会插入一个间接层。可以在枚举成员前加上"indirect"来表示该成员可递归
 
 
+// 类和结构体
+//swift中类和结构体有很多共同点
+//1:定义属性用于存储值
+//2:定义方法用于提供功能
+//3:定义附属脚本用于访问值
+//4:定义构造器用于生成初始值
+//5:通过扩展以增加默认实现的功能
+//6:实现协议以提供某种标准功能
+
+// 与结构体相比，类还有如下的附加功能
+//1:继承允许一个类继承另一个类的特征
+//2:类型转换允许在运行时检查和解释一个类实例的类型
+//3:解构器允许一个类实例释放任何其所被分配的资源
+//4:引用计数允许对一个类的多次引用
+
+// 结构体总是通过被赋值的方式在代码中传递，不使用引用计数
+
+//定义
+// 类和结构体有着类似的定义方式。通过关键字class和struct来分别表示类和结构体，并且在一对大括号中定义它们的具体内容：
+// 类
+//class SomeClass {
+////    具体内容
+//}
+
+// 结构体
+//struct SomeStructure {
+////    具体内容
+//}
+
+struct Resolution {
+    var width = 0
+    var height = 0
+}
+
+class VideoMode  {
+    var resolution = Resolution()
+    var interlaced = false
+    var frameRect = 0.0
+    var name : String?
+}
+
+// 类和结构题实例
+let someResolution = Resolution()
+let someVideoMode = VideoMode()
+
+// 结构体和类都适用构造器语法来生成新的实例，构造器语法的最简单形式是在结构体或者类型名称后跟随一对空括号。
+
+// 属性访问
+// 通过使用点语法，可以访问实例的属性。
+print("\(someResolution.width)")
+print(someResolution.height)
+
+print( "\(someVideoMode.frameRect)")
+print(someVideoMode.resolution.height)
+print(someVideoMode.interlaced)
+
+
+// 可以使用点语法为变量属性赋值.和oc不同的是swift允许直接设置结构体属性的子属性
+someVideoMode.resolution.width = 1280
+someVideoMode.name = "usdhsu"
+print(someVideoMode.name)
+
+
+// 结构体类型的成员逐一构造器
+// 所有结构体都有一个自动生成的成员逐一构造器，用于初始化新结构体实例中成员的属性。新实例中各个属性的初始值可以通过属性名称传递到成员逐一构造器之中。
+let vga = Resolution(width: 640, height: 480)
+
+// 结构体和枚举是值类型
+// 值类型被赋予给一个变量、常量或者被传递给一个函数的时候，其值会被拷贝
+
+// 在色swift中，所有的结构体和枚举类型都是值类型。
+
+let hd = Resolution(width: 1920, height: 1920)
+var cinema = hd // 值拷贝
+
+cinema.width = 2048
+print(cinema.width)
+print(hd.width)
+
+// 枚举也遵循相同的行为准则
+enum ComPassPoinT {
+    case North, South, East, West
+}
+var currentDirection = ComPassPoinT.West
+let rememberedDirection = currentDirection
+currentDirection = .East // 改变值
+if rememberedDirection == .West {
+    print("hello")
+}
+
+//  类是引用类型
+// 与值类型不同，引用类型在被赋予到一个变量、常量或者被传递到一个函数时，其值不会被拷贝。因此，引用的是已存在的实例本身而不是其拷贝;类似于oc中的指针地址
+let tenEighty = VideoMode() // 实例化一个类
+tenEighty.resolution = hd
+tenEighty.interlaced = true
+tenEighty.name = "1080i"
+tenEighty.frameRect = 25.0
+
+let alsoTenEighty = tenEighty
+alsoTenEighty.frameRect = 30.0
+print(tenEighty.frameRect)
+print(alsoTenEighty.frameRect)
+
+
+// 恒等运算符
+// 由于类是引用类型，有可能有多个常量和变量在幕后同时引用同一个类实例,swift内建了两个恒等运算符，可以判断两个常量或者变量是否引用同一个类实例
+
+// 等价于（===）
+// 不等价于（!==）
+// 运用这两个运算符可以检测两个常量或者变量是否引用同一个实例
+if tenEighty === alsoTenEighty { // 判断两个常量是否引用同一个类的实例
+    print("tenEighty and alsoTenEighty refer to the same VideoModel instance")
+}
+
+// 字符串、数组、字典类型的赋值与复制行为
+// 在swift中，许多基本类型，诸如String,Array和Dictionary类型均已结构体的形式实现。这意味着被赋值给新的常量或者变量，或者被传入函数方法中时，它们的值会被拷贝。
+
+
+
+
+
+
+
+
+
+
 
 
 

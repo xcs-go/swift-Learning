@@ -565,7 +565,7 @@ struct LevelTracker {
         return level <= highestUnlockedLevel
     }
     var currentLevel = 1
-     func advanceToLevel(level:Int) -> Bool { // 变异
+    mutating func advanceToLevel(level:Int) -> Bool { // 变异
         if LevelTracker.levelIsUnlocked(level) {
             currentLevel = level
             return true

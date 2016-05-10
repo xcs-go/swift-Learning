@@ -234,19 +234,217 @@ if tenEighty === alsoTenEighty { // 判断两个常量是否引用同一个类�
 // 字符串、数组、字典类型的赋值与复制行为
 // 在swift中，许多基本类型，诸如String,Array和Dictionary类型均已结构体的形式实现。这意味着被赋值给新的常量或者变量，或者被传入函数方法中时，它们的值会被拷贝。
 
+// 属性
+
+// 1:存储属性：一个存储属性就是存储在特定类或结构体的实例里的一个常量或变量。存储属性可以是变量存储属性，也可以是常量存储属性
+
+struct FixedLengthRange {
+    var firstValue:Int
+    let length:Int // 在创建结构体实例后不能修改值
+}
+
+var rangeOfThereItems = FixedLengthRange(firstValue: 0, length: 3)  // 区间表示0，1，2
+rangeOfThereItems.firstValue = 6 // 区间表示6，7，8
 
 
+// 常量结构体的存储属性
+// 如果创建了一个结构体的实例并将其赋值给一个常量，则无法修改实例的任何属性，即使定义了变量存储属性
+let rangeOfFourItems = FixedLengthRange(firstValue: 0, length: 4)
+
+// 以下修改会发生错误:cannot assign to "" in ""
+////rangeOfFourItems.firstValue = 6
+//let range1 = rangeOfThereItems
+//range1.firstValue = 2
+
+// 值类型：当值类型的“实例”被声明为常量的时候，它的所有属性也就成了常量，不可再次被修改
+// 引用类型：把一个引用类型的“实例”赋给一个常量后，仍然可以修改实例的变量属性
+class Person {
+    var name:String = ""
+    var age:Int?
+    var hight:Float?
+}
+
+let PersonOne = Person()
+PersonOne.name = "xcs"
+PersonOne.age = 23
+PersonOne.hight = 1.66
+print("\(PersonOne.hight)")
+
+let PersonTwo = PersonOne
+PersonTwo.age = 22
+print("\(PersonOne.age)")
 
 
+// 延迟存储属性（类似于懒加载）
+// 延迟存储属性是指当第一次被调用的时候才会计算其初始值的属性。在属性声明前使用lazy来标示一个延迟存储属性
+//必须将延迟存储属性声明成变量，因为属性的初始值可能在实例构造完成之后才会得到。而常量属性在构造过程完成之前必须要有初始值，因此无法声明成延迟属性
+class DataImporter {
+    var fileName = "data.txt"
+}
+
+class DataManager {
+    lazy var importer = DataImporter() // 使用了lazy，属性只有在第一次被访问的时候才被创建
+    var data = [String]()
+}
+
+let manager = DataManager()
+manager.data.append("Some data")
+manager.data.append("Some more data")
+
+print(manager.importer.fileName) // importer属性第一次被创建
 
 
+// 计算属性
+// 除存储属性外，类、结构体和枚举可以定义计算属性。计算属性不直接存储值，而是提供一个getter和一个可选的setter，来间接获取和设置其他属性或变量的值
+struct Point {
+    var x = 0.0, y = 0.0
+}
+
+struct Size {
+    var width = 0.0, height = 0.0
+}
+
+struct Rect {
+    var origin = Point()
+    var size = Size()
+    var center:Point {
+        get {
+            let centerX = origin.x + (size.width / 2)
+            let centerY = origin.y + (size.height / 2)
+            return Point(x: centerX, y: centerY)
+        }
+        
+        set(newCenter) { // newCenter 表示新值的参数名
+            origin.x = newCenter.x - (size.width / 2)
+            origin.y = newCenter.y - (size.height / 2)
+        }
+    }
+}
+
+var square = Rect(origin: Point(x: 0.0, y: 0.0), size: Size(width: 10.0, height: 10.0))
+let initialSquareCenter = square.center
+square.center = Point(x: 15.0, y: 15.0)
+
+// 只读计算属性
+// 只有getter没有setter的计算属性就是只读计算属性。只读计算属性总是返回一个值，可以通过点运算符访问，但不能设置新的值。
+// 只读计算属性的声明可以去掉get关键字和花括号
+struct Cubiod {
+    var width = 0.0 , height = 0.0 , depth = 0.0
+    var volume:Double { // 只有getter方法,省略了get关键字和花括号
+        return width * height * depth
+    }
+}
+
+// 生成结构体实例
+let fourByFiveByTwo = Cubiod(width: 4.0, height: 5.0, depth: 2.0)
+print(fourByFiveByTwo.volume)
 
 
+// 属性观察器
+
+// 属性观察器监控和响应属性值的变化，每次属性被设置值的时候都会调用属性观察器，甚至新的值和现在的值相同的时候也不例外
+
+// 为属性添加如下的一个或全部观察器：
+//    willSet 在新的值被设置之前调用  （会将新的属性值作为常量参数传入）
+//    didSet  在新的值被设置之后立即调用
+
+class StepCounter {
+    var totalSteps:Int = 0 {
+//         被设置之前会被调用
+        willSet(newTotalSteps) {
+            print("\(newTotalSteps)")
+        }
+        
+//         被设置完成之后立即调用
+        didSet {
+            if totalSteps > oldValue {
+                print("\(totalSteps - oldValue) steps")
+            }
+        }
+    }
+}
+
+let stepCounter = StepCounter()
+stepCounter.totalSteps = 200
+stepCounter.totalSteps = 360
+stepCounter.totalSteps = 896
+
+// 类型属性
+// 不管类型有多少个实例，这些属性都只有唯一一份，这种属性就是类型属性
 
 
+// 类型属性语法
+// 在swift中，类型属性是作为类型定义的一部分写在"类型最外层的花括号内"，因此它的作用范围也就在类型支持的范围内
+// 使用关键字static来定义类型属性。
+
+// 存储型类型属性的语法
+
+struct SomeStructure {
+    static var storedTypeProperty = "Some value"
+    static var computedTypeProperty: Int {
+        get {
+            return 1
+        }
+    }
+}
+
+enum SomeEnumerations {
+    static var storedTypeProperty = "Some value"
+    static var computedTypeProperty : Int {
+        get {
+            return 6
+        }
+    }
+}
 
 
+//计算型类型
+class SomeClass {
+    static var storedTypeProperty = "Some value"
+    static var computedType : Int {
+        get {
+            return 27
+        }
+    }
+    class var overrideableComputedType: Int {
+        get {
+            return 107
+        }
+    }
+}
 
+// 获取和设置类型属性的值
+
+// 获取
+print(SomeStructure.storedTypeProperty)
+
+// 设置
+SomeStructure.storedTypeProperty = "dsudfju"
+print(SomeStructure.storedTypeProperty)
+
+struct AudioChannel {
+    static let thresholdLevel = 10
+    static var maxInputLevelForAllChannel = 0
+    var currentLevel:Int = 0 {
+        didSet {
+            if currentLevel > AudioChannel.thresholdLevel {
+                currentLevel = AudioChannel.thresholdLevel
+            }
+            if currentLevel > AudioChannel.maxInputLevelForAllChannel {
+                AudioChannel.maxInputLevelForAllChannel = currentLevel
+            }
+        }
+    }
+}
+
+var leftChannel = AudioChannel()
+var rightChannel = AudioChannel()
+leftChannel.currentLevel = 7
+rightChannel.currentLevel = 11
+print(leftChannel.currentLevel)
+print(AudioChannel.maxInputLevelForAllChannel)
+print(rightChannel.currentLevel)
+print(AudioChannel.maxInputLevelForAllChannel)
 
 
 

@@ -446,6 +446,174 @@ print(AudioChannel.maxInputLevelForAllChannel)
 print(rightChannel.currentLevel)
 print(AudioChannel.maxInputLevelForAllChannel)
 
+// 方法
+// 结构体和枚举能够定义方法是swift与c/oc的主要区别之一。
+
+
+// 实例方法
+// 实例方法是属于某个特定类、结构体或者枚举类型实例的方法。实例方法提供访问和修改实例属性的方法或提供与实例目的相关的功能，并以此来支撑实例的功能。
+class Counter {
+    var count = 0
+    func increment() {
+        ++count
+    }
+    func incrementBy(amount:Int) {
+        count += amount
+    }
+    func reset() {
+        count = 0
+    }
+}
+// 利用点语法来调用实例方法
+let counter = Counter()
+counter.increment()
+counter.incrementBy(5)
+counter.reset()
+//  swift默认仅给方法的第一个参数名称一个局部参数名称，默认同时给第二个和后续的参数名称局部参数名称和外部参数名称
+class Countere {
+    var count :Int = 0
+    func incrementBy(amount:Int, numberOfTimes:Int){
+        count += amount * numberOfTimes
+    }
+}
+
+let countere = Countere()
+// 第二个和后续的参数名称局部参数名称和外部参数名称
+countere.incrementBy(5, numberOfTimes: 3)
+
+// 修改方法的外部参数名称
+// 如果不想为方法的第二个鸡后续的参数提供一个外部名称，可以使用下划线“_”作为改参数的显示外部名称
+class Counteres {
+    var count :Int = 0
+    func incrementBy(amount:Int, _ numberOfTimes:Int){
+        count += amount * numberOfTimes
+    }
+}
+
+let counteres = Counteres()
+counteres.incrementBy(2, 5)
+
+
+// self属性
+// 类型的每一个实例都有一个隐含属性叫做self，self完全等同于该实例本身，可以在一个实例的实例方法中使用这个隐含的self属性来引用当前实例
+class UserSelf {
+    var count: Int = 0
+    func incrementBy(amount:Int, numberOfTimes:Int) {
+        self.count += amount * numberOfTimes
+    }
+}
+
+let userSelf = UserSelf()
+userSelf.incrementBy(3, numberOfTimes: 6)
+
+// 在实例方法中修改值类型
+// 结构体和枚举是值类型。一般情况下，值类型的属性不能在它的实例方法中被修改
+// 如果确实需要在某个具体的方法中修改结构体或者枚举的属性，可以选择“变异（mutating）”这个方法，然后方法就可以从方法内部改变它的属性.
+// 使用mutating方法，将关键字mutating放到func关键字之前就可以了
+struct PointOne {
+    var x = 0.0, y = 0.0
+    mutating func moveByX(deltax:Double,y deltaY:Double) {
+        x += deltax
+        y += deltaY
+    }
+}
+var somePoints = Point(x: 1.0, y: 3.0)
+//somePoints.moveByX(2.0, y:3.0)
+print("\(somePoints.x)----\(somePoints.y)")
+
+// 在可变方法中给self赋值
+// 枚举的可变方法可以把self设置为相同的枚举类型中不同的成员
+enum TriStateSwitch {
+    case Off,Low,High
+    mutating func next() {
+        switch self {
+        case .Off:
+            self = Low
+        case .Low:
+            self = High
+        case .High:
+            self = Off
+        }
+    }
+}
+var ovenLight = TriStateSwitch.Low
+ovenLight.next()
+
+
+// 类型方法
+// 实例方法是被类型的某个实例调用的方法，你也可以定义类型本身调用的方法,这种方法就叫做类型方法。
+// 声明结构体和枚举的类型方法，在方法的func关键字之前加上关键字static。类可能会用关键字class来允许子类重写父类的实现方法
+
+// 类型方法和实例方法一样用点语法调用
+
+class OtherClass {
+    static func otherTypeMethod() {
+//        类型方法在这里实现
+    }
+}
+OtherClass.otherTypeMethod()
+
+// 在“类型方法的方法体”中，self指向这个"类型本身"，而不是类型的"某个实例"。对于结构体和枚举来说，这意味着你可以用self来消除静态属性和静态方法参数之间的歧义。
+struct LevelTracker {
+    static var highestUnlockedLevel = 1  // 类型属性
+    static func unlockLevel(level:Int) {  // 类型方法
+        if level > highestUnlockedLevel {
+            highestUnlockedLevel = level
+        }
+    }
+    static func levelIsUnlocked(level:Int) -> Bool {
+        return level <= highestUnlockedLevel
+    }
+    var currentLevel = 1
+     func advanceToLevel(level:Int) -> Bool { // 变异
+        if LevelTracker.levelIsUnlocked(level) {
+            currentLevel = level
+            return true
+        } else {
+            return false
+        }
+    }
+}
+
+class Player {
+    var tracker = LevelTracker()
+    let playerName:String
+    func completedLevel(level:Int) {
+        LevelTracker.unlockLevel(level + 1)
+        tracker.advanceToLevel(level + 1)
+    }
+    init(name:String) {
+        playerName = name
+    }
+}
+
+var player = Player(name: "Argyrios")
+player.completedLevel(1)
+print("\(LevelTracker.highestUnlockedLevel)")
+
+
+player = Player(name: "Beto")
+if player.tracker.advanceToLevel(6) {
+    print("player is now on level 6")
+} else {
+    print("level 6 has not yet been unlocked")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

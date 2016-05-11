@@ -172,6 +172,213 @@ print("\(automatic.description)")
 // 通过把方法，属性或下标脚本标记为final来防止它们被重写，只需要在声明关键字前加上final特性即可.eg : final var     在关键字class前添加final特性final class来将整个类标记为final。这样的类是不可被继承的，任何子类试图继承此类时，在编译时会报错
 
 
+// 构造过程
+// 构造过程是使用类、结构体或枚举类型一个实例的准备过程。
+// 通过构造器来实现构造过程，这些构造器可以看做是用来创建特定类型新实例的特殊方法。
+
+// 存储属性的初始值
+// 类和结构体在创建实例时，必须为所有存储型属性设置合适的初始值。存储型属性的值不能处于一个未知的状态。
+
+// 构造器
+//init() {
+////    在此处执行构造过程
+//}
+
+struct Fahrenheit {
+    var temperature:Double
+    init() {
+        temperature = 32.0
+    }
+}
+var f = Fahrenheit()
+print(f.temperature)
+f.temperature = 40.0
+print(f.temperature)
+
+
+// 自定义构造过程
+// 通过输入参数和可选属性类型来自定义构造过程，也可以在构造过程中修改常量属性
+
+// 构造参数
+struct Celsius {
+    var temperatureInCelsius:Double
+    init(fromFahrenheit fahrenheit:Double) {
+        temperatureInCelsius = (fahrenheit - 32.0) / 1.8
+    }
+    init(fromKelvin kelvin:Double) {
+        temperatureInCelsius = kelvin - 273.15
+    }
+}
+
+// 通过不同的构造器创建不同的实例
+let boilingPointOfWater = Celsius(fromFahrenheit: 212.0)
+let freezingPointOfWater = Celsius(fromKelvin: 273.15)
+
+
+// 参数的内部名称和外部名称
+// 跟函数和方法参数相同，构造参数也存在一个构造器内部使用的参数名字和一个在调用构造器时使用的外部参数名字。
+// 如果在定义构造器时没有提供参数的外部名字，swift会为每个构造器的参数自动生成一个跟内部名字相同的外部名。
+
+struct Color {
+    let red, green, blue: Double
+    init(red: Double, green: Double, blue: Double) {
+        self.red = red
+        self.green = green
+        self.blue = blue
+    }
+    init(white:Double) {
+        red = white
+        green = white
+        blue = white
+    }
+}
+
+let magenta = Color(red: 1.0, green: 0.0, blue: 1.0)
+let halfGray = Color(white: 0.5)
+
+// 如果不通过外部参数名字传值，是没有办法调用这个构造器的，只要构造器定义了某个外部参数名，就必须使用它，忽略它将会导致编译报错
+//let very = Color(1.0,0.0,1.0) 编译会报错
+
+
+// 不带外部参数名的构造器
+struct Colors {
+    let red, green, blue:Double
+//     不希望green提供外部名字，使用"_"来显示描述它的外部名
+    init(red:Double, _ green: Double, blue: Double) {
+        self.red = red
+        self.green = green
+        self.blue = blue
+    }
+    init(white: Double) {
+        red = white
+        green = white
+        blue = white
+    }
+}
+// 由于在构造器里green参数使用了"_"来显示描述外部名，所以这里的green的外部名称没有显示出来
+let colors = Colors(red: 1.0, 0.0, blue: 0.5)
+
+struct Celsiuss {
+    var temperatureInCelsius: Double = 0.0
+    init(fromFahrenheit fahrenheit: Double) {
+        temperatureInCelsius = (fahrenheit - 32.0) / 1.8
+    }
+    init(fromKelvin kelvin: Double) {
+        temperatureInCelsius = kelvin - 273.15
+    }
+    init(_ celsiuss: Double) {
+        temperatureInCelsius = celsiuss
+        print("\(temperatureInCelsius)")
+    }
+}
+// 如果在结构体、枚举、类中声明了构造器，在实例化时没有使用构造器来实例化会报错
+//let bodyTemperature = Celsiuss()
+//print(bodyTemperature.temperatureInCelsius)
+
+let bodyTemperature = Celsiuss(37.0)
+print(bodyTemperature.temperatureInCelsius)
+
+// 可选属性类型
+// 如果定制的类型包含一个逻辑上允许取值为空的存储属性：不管是因为它无法在初始化时赋值，还是因为它可以在之后某个时间点可以赋值为空，都需要将它定义为可选类型option type。可选类型的属性将自动初始化为空nil,表示这个属性是故意在初始化时设置为空的
+class SurveyQuestion {
+    var text:String
+    var response:String? // 可选属性类型
+    init(text: String) {
+        self.text = text
+    }
+    func ask() {
+        print(text)
+    }
+}
+let cheeseQuestion = SurveyQuestion(text: "do you like cheese?")
+cheeseQuestion.ask()
+cheeseQuestion.response = "yes, i do like cheese"
+print(cheeseQuestion.response)
+
+
+// "构造过程中"常量属性的修改
+// 可以在构造过程中的任意时间点修改常量属性的值，只要在构造过程结束时是一个确定的值。一旦常量属性被赋值，它将永远不可改变
+// 对于类的实例来说，它的常量属性只能在定义它的类的构造过程中修改，不能在子类中修改
+class SurveyQuestions {
+    let text:String
+    var response:String?
+    init(text: String) {
+        self.text = text // 在类的构造器中设置常量的值
+    }
+    func ask() {
+        print(text)
+    }
+}
+let beetsQuestion = SurveyQuestions(text: "How about beets?") // 在这里时，类中的常量已经被赋值，不能再次被修改，如果再次修改会报错
+beetsQuestion.ask()
+beetsQuestion.response = "I also like beets.(But not with cheese)"
+
+// 修改已经被赋值的常量会报错
+//beetsQuestion.text = "juhdhfdhhyd"
+
+// 默认构造器
+// 如果结构体和类的所有属性都有默认值，同时没有自定义的构造器，那么swift会给这些结构体和类创建一个默认构造器。这个默认构造器将简单的创建一个所有属性值都设置为默认值的实例
+class ShoppingListItem {
+    var name: String?
+    var quantity = 1
+    var purchased = false
+}
+var item = ShoppingListItem()
+
+
+// 结构体的逐一成员构造器
+// 如果结构体对所有存储属性提供了默认值且自身没有提供定制的构造器，它们能自动获得一个逐一成员构造器
+struct Size {
+    var width = 0.0, height = 0.0
+}
+// Size自动获得一个逐一成员构造器，可以利用这个逐一成员构造器来创建新的实例
+let twoByTwo = Size(width: 2.0, height: 2.0)
+
+var twoByOne = Size()
+twoByOne.width = 2.0
+twoByOne.height = 2.0
+
+// 值类型的构造器代理
+// 构造器可以通过调用其它构造器来完成实例的部分构造过程。这一过程称为构造器代理，它能减少多个构造器间的代码重复
+// 构造器代理的实现规则和形式在值类型和类类型中有所不同。值类型（结构体和枚举类型）不支持继承，所以构造器代理的过程相对简单，因为它们只能代理给本身提供的构造器。类不同，它可以继承自其它类，这意味着类有责任保证其所有继承的存储型属性在构造时也能正确的初始化。
+
+
+// 对于值类型，你可以使用self.init在自定义的构造器中引用其它的属于相同值类型的构造器。并且只能在构造器内部使用self.init
+
+// 假如想通过默认构造器、逐一对象构造器以及你自己定制的构造器为值类型创建实例，建议将自己定制的构造器写到扩展中，而不是跟值类型定义混在一起。
+struct Point {
+    var x = 0.0 , y = 0.0
+}
+
+struct Rect {
+    var origin = Point()
+    var size = Size()
+    init() {}
+    init(origin:Point,size:Size){
+        self.origin = origin
+        self.size = size
+    }
+    init(center:Point, size:Size) {
+        let originX = center.x - (size.width / 2)
+        let originY = center.y - (size.height / 2)
+        self.init(origin: Point(x: originX, y: originY),size:size)
+    }
+}
+
+// 第一个构造器
+let basicRect = Rect()
+// 第二个构造器
+let originRect = Rect(origin: Point(x: 2.0, y: 4.0), size: Size(width: 3.0, height: 5.0))
+// 第三个构造器
+let centerRect = Rect(center: Point(x: 4.0, y: 6.0), size: Size(width: 1.0, height: 4.0))
+
+
+
+
+
+
+
+
 
 
 

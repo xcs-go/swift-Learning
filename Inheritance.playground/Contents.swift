@@ -656,6 +656,60 @@ class AutomaticallyNamedDocument: Document {
 // 注意：闭包结尾的大括号后面接了一对空的小括号，这是用来告诉swift需要立刻执行此闭包。如果忽略了这对括号，相当于是将闭包本身作为值赋值给了属性，而不是将闭包的返回值赋值给属性。
 
 
+// 析构过程
+// 析构器只适用于类类型，当一个类的实例被释放之前，析构器会被立即调用。析构器用关键字deinit来表示，类似于构造器要用init来表示
+
+// 析构器过程原理
+// 在类的定义中，每个类最多只有一个析构器，而且析构器不带任何参数
+//deinit {
+////    执行析构过程
+//}
+
+// 析构器是在实例释放发生前被自动调用。析构器是不允许被主动调用的。子类继承了父类的析构器，并且在子类析构器实现的最后，父类的析构器会被自动调用。即使子类没有提供自己的析构器，父类的析构器也同样会被调用。
+
+struct Bank {
+    static var coinsInBank = 10000
+    static func vendCoins(var numberOfCoinsToVend:Int) -> Int {
+        numberOfCoinsToVend = min(numberOfCoinsToVend,coinsInBank)
+        coinsInBank -= numberOfCoinsToVend
+        return numberOfCoinsToVend
+    }
+    static func receiveCoins(coins:Int) {
+        coinsInBank += coins
+    }
+}
+
+
+class Player {
+    var coinsInPurse:Int
+    init(coins:Int) {
+        coinsInPurse = Bank.vendCoins(coins)
+    }
+    func winCoins(coins:Int) {
+        coinsInPurse += Bank.vendCoins(coins)
+    }
+    deinit {
+        Bank.receiveCoins(coinsInPurse)
+    }
+}
+
+var playerOne:Player? = Player(coins: 100)
+print(playerOne!.coinsInPurse)
+print(Bank.coinsInBank)
+
+playerOne!.winCoins(2000)
+print(playerOne!.coinsInPurse)
+print(Bank.coinsInBank)
+
+// 在
+playerOne = nil
+
+
+
+
+
+
+
 
 
 

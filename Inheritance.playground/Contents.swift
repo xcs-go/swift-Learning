@@ -701,8 +701,10 @@ playerOne!.winCoins(2000)
 print(playerOne!.coinsInPurse)
 print(Bank.coinsInBank)
 
-// 在
+// 在晴空玩家对象之前，析构器会自动被调用
 playerOne = nil
+print(Bank.coinsInBank)
+
 
 
 

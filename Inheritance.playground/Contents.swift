@@ -372,11 +372,288 @@ let originRect = Rect(origin: Point(x: 2.0, y: 4.0), size: Size(width: 3.0, heig
 // 第三个构造器
 let centerRect = Rect(center: Point(x: 4.0, y: 6.0), size: Size(width: 1.0, height: 4.0))
 
+// 类的继承和构造过程
+// 类里面的所有存储属性包括所有继承自父类的属性都必须在构造过程中设置初始值。
+// swift提供了两种类型的构造器来确保所有类型实例中存储型属性都能获得初始值，它们分别是指定构造器和便利构造器
+
+// 指定构造器和便利构造器
+// 指定构造器是类中最主要的构造器。一个指定构造器将初始化类中提供的所有属性，并根据父类链往上调用父类的构造器来实现父类的初始化
+
+// 每个类都必须拥有至少一个指定构造器。
+
+// 便利构造器是类中比较次要的、辅助型的构造器。可以定义遍历器来调用同一个类中的指定构造器，并为其参数提供默认值。
+
+// 指定构造器和便利构造器的语法
+
+// 指定构造器
+//init(parameters) {
+//    statements
+//}
 
 
+// 便利构造器
+// 便利构造器也采用相同样式的写法,但需要在init关键字之前放置convenience关键字
+//convenience init(parameters) {
+//    statements
+//}
+
+// 类的构造器代理规则
+// 为了简化指定构造器和便利构造器之间的调用关系，swift采用以下三条规则来限制构造器之间的代理调用
+// 1:指定构造器必须调用其直接父类的指定构造器
+// 2:便利构造器必须调用同一类中定义的其它构造器
+// 3:便利构造器必须最终以调用一个指定构造器结束
 
 
+// 两段式构造过程
+// swift 中类的构造过程包含两个阶段。第一个阶段，每个存储型属性通过引入它们的类的构造器来设置初始值。当每一个存储属性值被确定后，第二阶段开始，它给每个类一次机会在新实例准备使用之前进一步定制它们的存储型属性
 
+// 两段式构造过程的使用让构造过程更安全，同时在整个类层级结构中给予了每个类完全的灵活性。两段式构造过程可以防止属性值在初始化之前被访问；也可以防止属性被另外一个构造器意外地赋予不同的值
+
+// swift编译器将执行4种有效的安全检查，以确保两段式构造过程能顺利完成
+// 1:指定构造器必须保证它所在类引入的所有属性都必须先初始化完成，之后才能将其它构造任务向上代理给父类中的构造器；也就是说一个对象的内存只有在其所有存储型属性确定之后才能完全初始化。
+// 2:指定构造器必须先向上代理调用父类构造器，然后再为继承的属性设置新值。
+// 3:便利构造器必须先代理调用同一类中的其它构造器，然后再为任意属性赋新值。
+// 4:构造器在第一阶段构造完成之前，不能调用任何实例方法、不能读取任何实例属性的值，self的值不能被引用。
+
+// 构造器的继承和重写
+// swift中的子类不会默认继承父类的构造器。swift的这种机制可以防止一个父类的简单构造器被一个更专业的子类继承，并被错误的用来创建子类的实例
+class Vehicles {
+    var numberOfWheels = 0
+    var description:String {
+        return "\(numberOfWheels) wheel(s)"
+    }
+}
+let vehilc = Vehicles()
+print("Vehicle:\(vehilc.description)")
+
+class Bicycles: Vehicles {
+    override init() {
+        super.init()
+        numberOfWheels = 2
+    }
+}
+let bicycles = Bicycles()
+print("Bicycle:\(bicycles.description)")
+bicycles.numberOfWheels = 4
+print("\(bicycles.numberOfWheels)")
+
+// 自动构造器的继承
+// 子类不会默认继承父类的构造器。但是如果特定条件可以满足，父类构造器是可以被自动继承的。
+// 如果腰围子类中引入的任意新属性提供默认值，需要遵守以下2个规则
+// 1:如果子类没有定义任何指定构造器，它将自动继承所有父类的指定构造器。
+// 2:如果子类提供了所有父类指定构造器的实现，不管是通过规则1继承过来的，还是通过自定义实现的，它将自动继承所有父类的便利构造器
+
+class Food {
+    var name:String
+    init(name:String) {
+        self.name = name
+    }
+    convenience init() {
+        self.init(name: "Unnamed")
+    }
+}
+// 通过指定构造器来创建实例
+let namedMeat = Food(name: "Bacon")
+namedMeat.name = "Cheese"
+
+// 通过便利构造器来创建实例
+let mysteryMeat = Food()
+
+class RecipeIngredient: Food {
+    var quantity:Int
+    init(name: String, quantity: Int) {
+        self.quantity = quantity
+        super.init(name: name)
+    }
+    override convenience init(name: String) {
+        self.init(name:name, quantity:1)
+    }
+}
+let oneMysteryItem = RecipeIngredient()
+let oneBacon = RecipeIngredient(name: "Bacon")
+let sixEggs = RecipeIngredient(name: "Eggs", quantity: 6)
+
+// 没有自定义构造器，将会继承父类的所有指定构造器和便利构造器;可以使用继承来的这些构造器来创建实例
+class ShoppingListItems: RecipeIngredient {
+    var purchased = false
+    var description: String {
+        var output = "\(quantity) x \(name)"
+        output += purchased ? "?" : " ?"
+        return output
+    }
+}
+
+var breakfastList = [
+    ShoppingListItems(),
+    ShoppingListItems(name: "Bacon"),
+    ShoppingListItems(name: "Eggs", quantity: 6),
+]
+breakfastList[0].name = "Orange juice"
+breakfastList[0].purchased = true
+for item in breakfastList {
+    print(item.description)
+}
+
+// 可失败构造器
+struct Animal {
+    let species:String
+    init?(species: String) { // 创建一个可失败构造器
+        if species.isEmpty {
+            return nil
+        }
+        self.species = species
+    }
+}
+// 通过该可失败构造器来构建一个Animal的对象，并检查其构建过程是否成功
+let someCreature = Animal(species: "Giraffe")
+if let giraffe = someCreature { // 如果someCreature有值，将其赋值给giraffe
+    print("An animal was initialized with a species of \(giraffe.species)")
+}
+
+// 如果传入空字符串，则该可失败构造器失败
+let anonymousCreature = Animal(species: "")
+
+
+// 枚举类型的可失败构造器
+// 通过构造一个带一个或多个参数的可失败构造器来获取枚举类型中特定的枚举成员。还能在参数不满足枚举成员期望的条件时，构造失败
+enum TemperatureUnit {
+    case Kelvin, Celsius, Fahrenheit
+    init?(symbol: Character) {
+        switch symbol {
+            case "K":
+                self = .Kelvin
+            case "C":
+                self = .Celsius
+            case "F":
+                self = .Fahrenheit
+        default:
+            return nil  // 返回nil说明构造失败
+        }
+    }
+}
+
+// 构造成功
+let fahrenheitUnit = TemperatureUnit(symbol: "F")
+print("\(fahrenheitUnit)")
+
+// 构造失败
+let unknownUnit = TemperatureUnit(symbol: "X")
+
+
+// 带原始值的枚举类型的可失败构造器
+// 带原始值的枚举类型会自带一个可失败构造器，该可失败构造器有一个名为rawValue的默认参数。其类型和枚举类型的原始值类型一致，如果该参数的值能够和枚举类型成员所带的原始值匹配，则该构造器构造一个带此原始值的枚举成员，否则构造失败
+enum TemperatureUnits: Character {
+    case Kelvin = "k", Celsius = "C", Fahrenheit = "F"
+}
+
+// rawValue原始值
+let fahrenheitUnitS = TemperatureUnits(rawValue: "F")
+if fahrenheitUnitS != nil {
+    print("This is a defined temperature unit, so initialization succeeded")
+}
+let unknownUnits = TemperatureUnits(rawValue: "X")
+if unknownUnits == nil {
+    print("This is not a defined temperature unit, so initialization failed.")
+}
+
+// 类的可失败构造器
+// 值类型的可失败构造器，对何时何地触发构造失败这个行为没有任何的限制。
+// 类的可失败构造器只能在所有的类属性被初始化后和所有类之间的构造器的代理调用发生完后触发失败行为
+class Product {
+    let name: String!
+    init?(name:String) {
+        self.name = name
+        if name.isEmpty{return nil}
+    }
+}
+
+if let bowTie = Product(name: "bow tie") {
+    print("\(bowTie.name)")
+}
+
+
+// 构造失败的传递
+// 可失败构造器允许在同一类，结构体和枚举中横向代理其他的可失败构造器。类似的，子类的可失败构造器也能向上代理基类的可失败构造器
+// 无论是向上代理还是横向代理，如果你代理的可失败构造器，在构造过程中触发了构造失败的行为，整个构造过程都将被立即终止，接下来任何的构造都将不会被执行
+class CartItem: Product {
+    let quantity: Int!
+    init?(name:String, quantity: Int) {
+        self.quantity = quantity
+        super.init(name: name)
+        if quantity < 1 {return nil}
+    }
+}
+
+//构造成功
+if let twoSocks = CartItem(name: "sock", quantity: 2) {
+    print("Item:\(twoSocks.name), quantity:\(twoSocks.quantity)")
+}
+
+// 构造失败
+if let zeroShirts = CartItem(name: "shirt", quantity: 0) {
+    print("Item:\(zeroShirts.name), quantity:\(zeroShirts.quantity)")
+} else {
+    print("Unable to initialize zero shirts")
+}
+
+if let oneUnnamed = CartItem(name: "", quantity: 1) {
+    print("Item: \(oneUnnamed.name), quantity: \(oneUnnamed.quantity)")
+} else {
+    print("Unable to initialize one unnamed product")
+
+}
+
+// 重写一个可失败构造器
+// 可以用子类的可失败构造器重写基类的可失败构造器。或者你也可以用子类的非可失败构造器重写一个基类的可失败构造器，这样做的好处是，即使基类的构造器为可失败构造器，但当子类的构造器在构造过程不可能失败时，我们也可以把它修改过来。
+
+// 注意：当用一个子类的非可失败构造器重写了一个父类的可失败构造器时，子类的构造器将不再向上代理父类的可失败构造器。一个非可失败的构造器永远也不能代理调用一个可失败构造器
+class Document {
+    var name: String?
+    init(){}
+    init?(name: String) {
+        if name.isEmpty {return nil}
+        self.name = name
+    }
+}
+
+class AutomaticallyNamedDocument: Document {
+    override init() {
+        super.init()
+        self.name = "[Untitled]"
+    }
+    override init(name: String) {
+        super.init()
+        if name.isEmpty {
+            self.name = "[Untitled]"
+        } else {
+            self.name = name
+        }
+    }
+}
+
+// 必要构造器
+// 在类的构造器前添加required修饰符表明所有该类的子类都必须实现该构造器
+//class SomeClass {
+//    required init() {
+////        在这里添加钙必要构造器的实现代码
+//    }
+//}
+
+// 在子类重写父类的必要构造器时，必须在子类的构造器前添加required修饰符，这是为了保证继承链上子类的构造器也是必要构造器。在重写父类的必要构造器时，不需要添加override修饰符
+
+//class SomeSubclass:SomeClass {
+//    required init() {
+////        在这里添加子类必要构造器的实现代码
+//    }
+//}
+
+// 通过闭包盒函数来设置属性的默认值
+//class SomeClass {
+//    let someProperty:SomeType = {
+//        return someValue
+//    }()
+//}
+// 注意：闭包结尾的大括号后面接了一对空的小括号，这是用来告诉swift需要立刻执行此闭包。如果忽略了这对括号，相当于是将闭包本身作为值赋值给了属性，而不是将闭包的返回值赋值给属性。
 
 
 

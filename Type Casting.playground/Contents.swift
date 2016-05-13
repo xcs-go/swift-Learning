@@ -177,6 +177,137 @@ print("theAceOfSpades:\(theAceOfSpades.description)")
 let heartsSymbol = BlackjackCard.Suit.Hearts.rawValue
 
 
+// 扩展(Extension)
+// 扩展可以向已有类型添加计算型实例属性和计算型类型属性。
+extension Double {
+    var km: Double {
+        return self * 10000.0
+    }
+    var m: Double {
+        return self
+    }
+    var cm: Double {
+        return self / 100.0
+    }
+    var mm: Double {
+        return self / 10000.0
+    }
+    var ft: Double {
+        return self / 3.28084
+    }
+}
+
+let oneInch = 25.4.mm
+let threeFeet = 3.ft
+
+// 扩展可以添加新的计算属性，但是不可以添加存储属性，也不可以向已有属性添加属性观测器
+
+
+
+// 构造器
+// 扩展可以向已有类型添加新的构造器。这可以让你扩展其它类型，将你自己的定制类型作为构造器参数，或者提供该类型的原始实现中没有包含的额外初始化选项。
+// 扩展能向类中添加新的便利构造器，但是它们不能向类中添加新的指定构造器或析构器。指定构造器和析构器必须总是由原始的类实现来提供。
+struct Size {
+    var width = 0.0, height = 0.0
+}
+struct Point {
+    var x = 0.0, y = 0.0
+}
+struct Rect {
+    var origin = Point()
+    var size = Size()
+}
+let defaultRect = Rect()
+let memberwiseRect = Rect(origin: Point(x: 2.0, y: 2.0), size: Size(width: 5.0, height: 5.0))
+
+// 提供一个额外的使用特殊中心点和大小的构造器来扩展Rect结构体
+extension Rect {
+    init(center:Point, size:Size) {
+        let originX = center.x - (size.width / 2)
+        let originY = center.y - (size.height / 2)
+        self.init(origin:Point(x: originX, y: originY),size:size)
+    }
+}
+let centerRect = Rect(center: Point(x: 4.0, y: 4.0), size: Size(width: 3.0, height: 3.0))
+
+// 方法
+// 扩展可以向已有类型添加新的实例方法和类型方法。
+extension Int {
+    func repetitions(task:() -> ()) {
+        for i in 0..<self {
+            task()
+        }
+    }
+}
+3.repetitions({
+    print("hello!")
+})
+
+// 可变实例方法
+// 通过扩展添加的实例方法也可以修改该实例本身。结构体和枚举中修改self或其属性的方法必须将该实例方法标注为mutating
+extension Int {
+    mutating func square() {
+        self = self * self
+    }
+}
+var someInt = 3
+someInt.square()
+
+// 下标
+// 扩展可以向一个已有类型添加新下标。
+extension Int {
+    subscript(var digiIndex:Int) -> Int{
+        var decimalBase = 1
+        while digiIndex > 0 {
+            decimalBase *= 10
+            --digiIndex
+        }
+        return (self / decimalBase)
+    }
+}
+7485285652[0]
+print("\(77478484784[1])")
+
+// 嵌套类型
+// 扩展可以向已有的类、结构体和枚举添加新的嵌套类型
+extension Int {
+    enum Kind {
+        case Negative,Zero,Positive
+    }
+    var kind:Kind {
+        switch self {
+        case 0:
+            return .Zero
+        case let x where x > 0 :
+            return .Positive
+        default:
+            return .Negative
+        }
+    }
+}
+
+func printIntegerKinds(numbers:[Int]) {
+    for number in numbers {
+        switch number.kind {
+        case .Negative:
+            print("-")
+        case .Zero:
+            print("0")
+        case .Positive:
+            print("+")
+        }
+    }
+    print("")
+}
+printIntegerKinds([3,15,-27,0,-6,0,8])
+
+
+
+
+
+
+
+
 
 
 

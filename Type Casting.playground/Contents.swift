@@ -126,8 +126,55 @@ for thing in things {
 }
 
 
+// 嵌套类型
+// swift允许定义嵌套类型，可以在枚举类型、类和结构体中定义支持嵌套的类型
+// 要在一个类型中嵌套另一个类型，将需要嵌套的类型的定义写在被嵌套类型的区域{}内，而且可以根据需要定义多级嵌套
 
+// 嵌套类型实例
+struct BlackjackCard {
+//    嵌套定义枚举类型suit
+    enum Suit:Character {
+        case Spades = "?"
+        case Hearts = "!"
+        case Diamonds = "~"
+        case Clubs = "&"
+    }
+    
+//    嵌套定义枚举Bank
+    enum Rank:Int {
+        case Two = 2,There,Four,Five,Six,Seven,Eight,Nine,Ten
+        case Jack,Queen,King,Ace
+        struct Value {
+            let first:Int, second:Int?
+        }
+        var values:Value {
+            switch self {
+            case .Ace:
+                return Value(first: 1, second: 11)
+            case .Jack, .Queen, .King:
+                return Value(first: 10, second: nil)
+            default:
+                return Value(first: self.rawValue, second: nil)
+            }
+        }
+    }
+    let rank:Rank, suit:Suit
+    var description:String {
+        var output = "suit is \(suit.rawValue)"
+        output += "value is \(rank.values.first)"
+        if let second = rank.values.second {
+            output += "or \(second)"
+        }
+        return output
+    }
+}
 
+let theAceOfSpades = BlackjackCard(rank: .Ace, suit: .Spades)
+print("theAceOfSpades:\(theAceOfSpades.description)")
+
+// 嵌套类型的引用
+// 在外部对嵌套类型的引用，以被嵌套类型的名字为前缀，加上所要引用的属性名
+let heartsSymbol = BlackjackCard.Suit.Hearts.rawValue
 
 
 
